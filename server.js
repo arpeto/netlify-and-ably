@@ -1,29 +1,29 @@
-const express = require("express")
-const app = express()
-const http = require("http").Server(app)
-const io = require("socket.io")(http)
-const port = 3000
+const Ably = require('ably');
 
-app.use(express.static("./public"))
+async function publishSubscribe() {
 
-app.get("/", (req, res) =>{
-  res.sendFile("index.html", {root: __dirname})
-})
-
-http.listen(port, () => console.log("Server on in port: " + port))
-
-io.on("connection", socket => {
-  console.log("USER CONNECTED")
-
-  socket.on("sendMessage", (senderName, senderText, clientRoom) => {
-    io.sockets.in(clientRoom).emit("roomMessages", senderName, senderText) //All in room
-    //socket.to(clientRoom).emit("roomMessages", senderName, senderText) //All except sender in room
-    console.log(socket.id, senderName, "said", senderText,"in room", clientRoom)
+  // Connect to Ably with your API key
+  const ably = new Ably.Realtime("9iP12Q.NJMnNg:q-b3ILBufPQPo6UYPuR0slXkniOQMyy6YuMq29kqVYI")
+  ably.connection.once("connected", () => {
+    console.log("Connected to Ably!")
   })
 
-  socket.on("joinRoom", room => {
-    socket.join(room)
-    console.log("SOMEONE JOINED")
-  })
+  // Create a channel called 'get-started' and register a listener to subscribe to all messages with the name 'first'
+  const channel = ably.channels.get("get-started")
+  await channel.subscribe("first", (message) => {
+    console.log("Message received: " + message.data)
+  });
 
-})
+  // Publish a message with the name 'first' and the contents 'Here is my first message!'
+  await channel.publish("first", "Here is my first message!")
+
+  // Close the connection to Ably after a 5 second delay
+  setTimeout(async () => {
+    ably.connection.close();
+      await ably.connection.once("closed", function () {
+        console.log("Closed the connection to Ably.")
+      });
+  }, 5000);
+}
+
+publishSubscribe();
