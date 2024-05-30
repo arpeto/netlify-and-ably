@@ -1,0 +1,19 @@
+{
+  "name": "el",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "netlify deploy --prod"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "ably": "^2.0.4",
+    "express": "^4.19.2",
+    "netlify-cli": "^17.25.0",
+    "netlify-lambda": "^2.0.16",
+    "socket.io": "^4.7.5"
+  }
+}
